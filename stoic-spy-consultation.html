@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Request Consultation — Stoic Spy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#06090F;color:#EDE8DC;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+::selection{background:#C4973A;color:#06090F}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;background:none;font:inherit}
+
+/* ── TOKENS ── */
+:root{
+  --void:#06090F;
+  --navy:#0D1520;
+  --navy-mid:#111E2E;
+  --navy-light:#1A2C42;
+  --navy-border:#1E2E42;
+  --gold:#C4973A;
+  --gold-bright:#E2B44A;
+  --gold-dim:#7A5C20;
+  --copper:#A05A28;
+  --cream:#EDE8DC;
+  --cream-dim:#C8C0AE;
+  --muted:#7A8899;
+  --muted-dark:#3A4858;
+  --error:#C0392B;
+  --success:#1A8C5A;
+  --font-display:'Cormorant Garamond',Georgia,serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+  --gutter:clamp(1.25rem,5vw,3rem);
+  --max-w:1100px;
+}
+
+/* ── NAV ── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 var(--gutter);height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(6,9,15,0.94);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--navy-border);
+}
+.nav-logo{display:flex;align-items:center;gap:0.65rem}
+.nav-logo-main{font-family:var(--font-display);font-size:1.1rem;font-weight:600;letter-spacing:0.12em;color:var(--cream);text-transform:uppercase}
+.nav-logo-sub{font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-top:1px;display:block}
+.nav-back{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:0.5rem;transition:color 0.2s}
+.nav-back:hover{color:var(--cream)}
+.nav-back svg{transition:transform 0.2s}
+.nav-back:hover svg{transform:translateX(-3px)}
+
+/* ── PAGE HERO ── */
+.page-hero{
+  padding-top:64px;
+  position:relative;
+  overflow:hidden;
+  border-bottom:1px solid var(--navy-border);
+}
+.page-hero-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,var(--navy) 0%,var(--void) 100%);
+}
+.page-hero-bg::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(196,151,58,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(196,151,58,0.04) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:linear-gradient(to bottom,transparent,rgba(0,0,0,0.5) 30%,rgba(0,0,0,0.5) 70%,transparent);
+}
+.page-hero-glow{
+  position:absolute;bottom:-120px;left:50%;transform:translateX(-50%);
+  width:700px;height:300px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(196,151,58,0.07) 0%,transparent 65%);
+}
+.page-hero-rule{position:absolute;left:var(--gutter);top:64px;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--gold-dim),transparent);opacity:0.35}
+.page-hero-inner{position:relative;z-index:2;padding:4rem var(--gutter) 4rem calc(var(--gutter) + 28px);max-width:var(--max-w);margin:0 auto}
+.breadcrumb{display:flex;align-items:center;gap:0.5rem;font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.18em;color:var(--muted-dark);text-transform:uppercase;margin-bottom:1.75rem}
+.breadcrumb a{color:var(--muted-dark);transition:color 0.2s}.breadcrumb a:hover{color:var(--gold)}
+.breadcrumb-sep{color:var(--gold-dim);opacity:0.5}
+.page-tag{display:inline-flex;align-items:center;gap:0.6rem;font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--void);background:var(--gold);padding:0.3rem 0.85rem;border-radius:2px;margin-bottom:1.5rem}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--void);animation:pulse 2.5s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.page-hero-title{font-family:var(--font-display);font-size:clamp(3rem,7vw,6rem);font-weight:300;line-height:0.95;letter-spacing:-0.01em;color:var(--cream);margin-bottom:1.5rem}
+.page-hero-title em{font-style:italic;color:var(--gold)}
+.page-hero-sub{font-size:1rem;font-weight:300;color:var(--cream-dim);max-width:520px;line-height:1.75}
+
+/* ── MAIN LAYOUT ── */
+.page-body{max-width:var(--max-w);margin:0 auto;padding:4rem var(--gutter) 6rem;display:grid;grid-template-columns:1fr 380px;gap:4rem;align-items:start}
+@media(max-width:900px){.page-body{grid-template-columns:1fr;gap:3rem}}
+
+/* ── FORM ── */
+.form-container{
+  background:var(--navy);
+  border:1px solid var(--navy-border);
+  border-radius:4px;
+  overflow:hidden;
+  position:relative;
+}
+.form-container::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),var(--copper),var(--gold),transparent);
+}
+
+/* Terminal header */
+.form-header{
+  background:var(--navy-mid);
+  border-bottom:1px solid var(--navy-border);
+  padding:0.9rem 1.75rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.form-header-left{display:flex;align-items:center;gap:0.65rem}
+.fh-dot{width:10px;height:10px;border-radius:50%}
+.fh-dot-r{background:#FF5F57}.fh-dot-a{background:#FEBC2E}.fh-dot-g{background:#28C840}
+.form-header-title{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase}
+.form-header-status{font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.14em;color:var(--gold);text-transform:uppercase;display:flex;align-items:center;gap:0.4rem}
+.form-status-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s ease-in-out infinite}
+
+.form-body{padding:2.25rem 2rem}
+
+/* Field groups */
+.field-group{margin-bottom:1.75rem}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.field-row{grid-template-columns:1fr}}
+
+.field-label{
+  display:block;
+  font-family:var(--font-mono);
+  font-size:0.6rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:0.5rem;
+}
+.field-label .req{color:var(--copper);margin-left:2px}
+
+.field-input,
+.field-select,
+.field-textarea{
+  width:100%;
+  background:var(--navy-mid);
+  border:1px solid var(--navy-border);
+  border-radius:2px;
+  padding:0.8rem 1rem;
+  color:var(--cream);
+  font-family:var(--font-body);
+  font-size:0.9rem;
+  outline:none;
+  transition:border-color 0.25s, box-shadow 0.25s, background 0.25s;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.field-input::placeholder,.field-textarea::placeholder{color:var(--muted-dark)}
+.field-input:focus,.field-select:focus,.field-textarea:focus{
+  border-color:var(--gold-dim);
+  background:var(--navy-light);
+  box-shadow:0 0 0 3px rgba(196,151,58,0.08);
+}
+.field-input.error,.field-select.error,.field-textarea.error{
+  border-color:var(--error);
+  box-shadow:0 0 0 3px rgba(192,57,43,0.1);
+}
+.field-error{
+  font-family:var(--font-mono);
+  font-size:0.58rem;
+  letter-spacing:0.1em;
+  color:var(--error);
+  margin-top:0.4rem;
+  display:none;
+}
+.field-error.show{display:block}
+
+.field-select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A8899' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 1rem center;
+  padding-right:2.5rem;
+  cursor:pointer;
+}
+.field-select option{background:var(--navy-mid);color:var(--cream)}
+
+.field-textarea{resize:vertical;min-height:120px;line-height:1.65}
+
+/* Checkboxes */
+.check-group{display:flex;flex-direction:column;gap:0.65rem}
+.check-item{display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer}
+.check-item input[type="checkbox"]{
+  flex-shrink:0;
+  width:18px;height:18px;
+  appearance:none;-webkit-appearance:none;
+  background:var(--navy-mid);
+  border:1px solid var(--navy-border);
+  border-radius:2px;
+  margin-top:2px;
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative;
+}
+.check-item input[type="checkbox"]:checked{
+  background:var(--gold);
+  border-color:var(--gold);
+}
+.check-item input[type="checkbox"]:checked::after{
+  content:'';
+  position:absolute;
+  left:5px;top:2px;
+  width:6px;height:9px;
+  border:2px solid var(--void);
+  border-top:none;border-left:none;
+  transform:rotate(45deg);
+}
+.check-item input[type="checkbox"]:focus{box-shadow:0 0 0 3px rgba(196,151,58,0.12)}
+.check-label{font-size:0.875rem;color:var(--cream-dim);line-height:1.5;user-select:none}
+.check-label strong{color:var(--cream);font-weight:500}
+
+/* Radio group */
+.radio-group{display:flex;flex-direction:column;gap:0.65rem}
+.radio-item{display:flex;align-items:center;gap:0.75rem;cursor:pointer}
+.radio-item input[type="radio"]{
+  flex-shrink:0;
+  width:18px;height:18px;
+  appearance:none;-webkit-appearance:none;
+  background:var(--navy-mid);
+  border:1px solid var(--navy-border);
+  border-radius:50%;
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative;
+}
+.radio-item input[type="radio"]:checked{border-color:var(--gold)}
+.radio-item input[type="radio"]:checked::after{
+  content:'';
+  position:absolute;
+  inset:4px;
+  border-radius:50%;
+  background:var(--gold);
+}
+.radio-item input[type="radio"]:focus{box-shadow:0 0 0 3px rgba(196,151,58,0.12)}
+.radio-label{font-size:0.875rem;color:var(--cream-dim);user-select:none}
+
+/* Divider */
+.form-divider{
+  border:none;
+  border-top:1px solid var(--navy-border);
+  margin:2rem 0;
+}
+.form-section-title{
+  font-family:var(--font-mono);
+  font-size:0.6rem;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:1.25rem;
+  display:flex;
+  align-items:center;
+  gap:0.75rem;
+}
+.form-section-title::before{content:'//';opacity:0.5;font-size:0.55rem}
+
+/* Character counter */
+.field-meta{display:flex;justify-content:space-between;margin-top:0.4rem}
+.char-count{font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.1em;color:var(--muted-dark)}
+
+/* Submit button */
+.submit-btn{
+  width:100%;
+  display:flex;align-items:center;justify-content:center;gap:0.75rem;
+  font-family:var(--font-mono);font-size:0.72rem;font-weight:500;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--void);
+  background:linear-gradient(135deg,var(--gold) 0%,#A8782A 100%);
+  padding:1.1rem 2rem;
+  border-radius:2px;
+  transition:all 0.35s var(--ease-out);
+  position:relative;overflow:hidden;
+  border:none;cursor:pointer;
+  margin-top:0.5rem;
+}
+.submit-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.3s;
+}
+.submit-btn:hover{box-shadow:0 0 30px 6px rgba(196,151,58,0.25);transform:translateY(-1px)}
+.submit-btn:hover::before{opacity:1}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+.submit-btn.loading .btn-text{opacity:0}
+.submit-btn.loading .btn-spinner{display:block}
+.btn-spinner{display:none;width:18px;height:18px;border:2px solid rgba(6,9,15,0.3);border-top-color:var(--void);border-radius:50%;animation:spin 0.7s linear infinite;position:absolute}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.form-footer-note{
+  font-family:var(--font-mono);
+  font-size:0.56rem;letter-spacing:0.12em;
+  color:var(--muted-dark);text-transform:uppercase;
+  text-align:center;margin-top:1rem;
+}
+
+/* Form footer bar */
+.form-footer-bar{
+  background:var(--navy-mid);
+  border-top:1px solid var(--navy-border);
+  padding:0.75rem 1.75rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.form-footer-code{font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.14em;color:var(--muted-dark);text-transform:uppercase}
+.form-enc{font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.12em;color:var(--muted-dark);display:flex;align-items:center;gap:0.4rem}
+.form-enc svg{color:var(--gold-dim)}
+
+/* ── SUCCESS STATE ── */
+.success-state{
+  display:none;
+  padding:4rem 2rem;
+  text-align:center;
+}
+.success-state.show{display:block}
+.form-fields.hide{display:none}
+.success-icon{
+  width:64px;height:64px;
+  border:1px solid var(--gold-dim);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.5rem;
+  color:var(--gold);
+  animation:success-pop 0.5s var(--ease-out);
+}
+@keyframes success-pop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+.success-title{font-family:var(--font-display);font-size:1.75rem;font-weight:600;color:var(--cream);margin-bottom:0.75rem}
+.success-sub{font-size:0.9rem;color:var(--muted);line-height:1.75;max-width:320px;margin:0 auto 2rem}
+.success-code{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.18em;color:var(--gold-dim);text-transform:uppercase}
+
+/* ── SIDEBAR ── */
+.sidebar{}
+.sidebar-card{
+  background:var(--navy);
+  border:1px solid var(--navy-border);
+  border-radius:4px;
+  overflow:hidden;
+  margin-bottom:1rem;
+}
+.sidebar-card-header{
+  background:var(--navy-mid);
+  border-bottom:1px solid var(--navy-border);
+  padding:0.75rem 1.25rem;
+  font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;
+}
+.sidebar-card-body{padding:1.25rem}
+
+/* What to expect */
+.expect-list{display:flex;flex-direction:column;gap:1rem}
+.expect-item{display:flex;gap:0.85rem;align-items:flex-start}
+.expect-num{
+  width:24px;height:24px;border-radius:50%;
+  border:1px solid var(--gold-dim);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:0.55rem;color:var(--gold);
+  flex-shrink:0;margin-top:1px;
+}
+.expect-text{}
+.expect-title{font-size:0.85rem;font-weight:500;color:var(--cream);margin-bottom:0.2rem}
+.expect-sub{font-size:0.8rem;color:var(--muted);line-height:1.55}
+
+/* Who this is for */
+.for-list{display:flex;flex-direction:column;gap:0.6rem}
+.for-item{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.85rem;color:var(--cream-dim);line-height:1.5}
+.for-item::before{content:'→';color:var(--gold);font-size:0.72rem;flex-shrink:0;margin-top:2px}
+
+/* Response time */
+.response-box{
+  border:1px solid var(--navy-border);
+  border-left:3px solid var(--gold);
+  border-radius:2px;
+  padding:1rem 1.25rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.response-icon{color:var(--gold);flex-shrink:0}
+.response-text{}
+.response-title{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:0.25rem}
+.response-sub{font-size:0.82rem;color:var(--muted);line-height:1.5}
+
+/* Privacy note */
+.privacy-note{
+  font-family:var(--font-mono);
+  font-size:0.56rem;letter-spacing:0.1em;
+  color:var(--muted-dark);text-transform:uppercase;
+  text-align:center;padding:1rem 1.25rem;
+  border-top:1px solid var(--navy-border);
+  line-height:1.7;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--void);
+  border-top:1px solid var(--navy-border);
+  padding:1.75rem 0;
+}
+.footer-inner{
+  max-width:var(--max-w);margin:0 auto;
+  padding:0 var(--gutter);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+}
+.footer-legal{font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.1em;color:var(--muted-dark)}
+.footer-mission{font-family:var(--font-display);font-size:0.875rem;font-style:italic;color:var(--muted-dark)}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.6s var(--ease-out),transform 0.6s var(--ease-out)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.2s}
+
+@media(max-width:600px){
+  .form-body{padding:1.5rem 1.25rem}
+  .form-header,.form-footer-bar{padding-left:1.25rem;padding-right:1.25rem}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════ -->
+<nav id="nav">
+  <a href="index.html#companies-stoicspy" target="_top" class="nav-logo">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <circle cx="16" cy="16" r="15" stroke="#C4973A" stroke-width="0.75" stroke-dasharray="3 2"/>
+      <circle cx="16" cy="16" r="9"  stroke="#C4973A" stroke-width="0.5" opacity="0.5"/>
+      <line x1="16" y1="3"  x2="16" y2="29" stroke="#C4973A" stroke-width="0.6" opacity="0.4"/>
+      <line x1="3"  y1="16" x2="29" y2="16" stroke="#C4973A" stroke-width="0.6" opacity="0.4"/>
+      <circle cx="16" cy="16" r="2" fill="#C4973A"/>
+    </svg>
+    <div>
+      <span class="nav-logo-main">Stoic Spy</span>
+      <span class="nav-logo-sub">Request Consultation</span>
+    </div>
+  </a>
+  <a href="index.html#companies-stoicspy" target="_top" class="nav-back">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M13 7H1M7 13L1 7l6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back to Home
+  </a>
+</nav>
+
+<!-- ══ PAGE HERO ══════════════════════════════════════════ -->
+<div class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true"></div>
+  <div class="page-hero-glow" aria-hidden="true"></div>
+  <div class="page-hero-rule" aria-hidden="true"></div>
+  <div class="page-hero-inner">
+    <div class="breadcrumb">
+      <a href="index.html#companies-stoicspy" target="_top">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Consultation</span>
+    </div>
+    <div class="page-tag">
+      <div class="status-dot" aria-hidden="true"></div>
+      Intake Form — Open
+    </div>
+    <h1 class="page-hero-title">
+      Request a<br/><em>Consultation.</em>
+    </h1>
+    <p class="page-hero-sub">
+      Whether you're a prospective student, a security professional, or an organization looking to train a team — tell us what you need. We'll respond within 48 hours.
+    </p>
+  </div>
+</div>
+
+<!-- ══ MAIN BODY ══════════════════════════════════════════ -->
+<div class="page-body">
+
+  <!-- ── FORM ── -->
+  <div>
+    <div class="form-container reveal">
+
+      <!-- Terminal header -->
+      <div class="form-header">
+        <div class="form-header-left">
+          <div class="fh-dot fh-dot-r" aria-hidden="true"></div>
+          <div class="fh-dot fh-dot-a" aria-hidden="true"></div>
+          <div class="fh-dot fh-dot-g" aria-hidden="true"></div>
+        </div>
+        <div class="form-header-title">// STOIC-SPY-INTAKE-FORM-v1.0</div>
+        <div class="form-header-status">
+          <div class="form-status-dot" aria-hidden="true"></div>
+          Secure Transmission
+        </div>
+      </div>
+
+      <!-- SUCCESS STATE -->
+      <div class="success-state" id="successState" role="alert" aria-live="polite">
+        <div class="success-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="success-title">Transmission Received</div>
+        <p class="success-sub">Your consultation request has been logged. Expect a response within 48 hours at the email you provided.</p>
+        <div class="success-code">// REF: SSN-<span id="refCode">------</span> &nbsp;·&nbsp; STATUS: PENDING REVIEW</div>
+        <div style="margin-top:2rem">
+          <a href="index.html#companies-stoicspy" target="_top" style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-dim);padding:0.65rem 1.5rem;border-radius:2px;transition:all 0.2s;display:inline-block" onmouseover="this.style.background='rgba(196,151,58,0.1)'" onmouseout="this.style.background='transparent'">← Return to Home</a>
+        </div>
+      </div>
+
+      <!-- FORM FIELDS -->
+      <form class="form-fields form-body" id="consultForm" novalidate autocomplete="on">
+
+        <!-- SECTION 1: Identity -->
+        <div class="form-section-title">Personal Information</div>
+
+        <div class="field-row field-group">
+          <div>
+            <label class="field-label" for="firstName">First Name <span class="req">*</span></label>
+            <input class="field-input" type="text" id="firstName" name="firstName" placeholder="Omar" autocomplete="given-name" required/>
+            <div class="field-error" id="firstName-error">First name is required.</div>
+          </div>
+          <div>
+            <label class="field-label" for="lastName">Last Name <span class="req">*</span></label>
+            <input class="field-input" type="text" id="lastName" name="lastName" placeholder="Torres" autocomplete="family-name" required/>
+            <div class="field-error" id="lastName-error">Last name is required.</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="email">Email Address <span class="req">*</span></label>
+          <input class="field-input" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required/>
+          <div class="field-error" id="email-error">A valid email address is required.</div>
+        </div>
+
+        <div class="field-row field-group">
+          <div>
+            <label class="field-label" for="phone">Phone Number</label>
+            <input class="field-input" type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" autocomplete="tel"/>
+          </div>
+          <div>
+            <label class="field-label" for="country">Country / Region <span class="req">*</span></label>
+            <select class="field-select" id="country" name="country" required>
+              <option value="" disabled selected>Select your country</option>
+              <option value="US">United States</option>
+              <option value="CA">Canada</option>
+              <option value="GB">United Kingdom</option>
+              <option value="AU">Australia</option>
+              <option value="DE">Germany</option>
+              <option value="FR">France</option>
+              <option value="MX">Mexico</option>
+              <option value="BR">Brazil</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="field-error" id="country-error">Please select your country.</div>
+          </div>
+        </div>
+
+        <hr class="form-divider"/>
+
+        <!-- SECTION 2: Background -->
+        <div class="form-section-title">Your Background</div>
+
+        <div class="field-group">
+          <label class="field-label" for="role">Current Role / Background <span class="req">*</span></label>
+          <select class="field-select" id="role" name="role" required>
+            <option value="" disabled selected>Select the closest match</option>
+            <optgroup label="Civilian">
+              <option value="civilian-professional">Civilian — Professional (Business, Corporate)</option>
+              <option value="civilian-general">Civilian — General Public</option>
+              <option value="civilian-student">Civilian — Student</option>
+            </optgroup>
+            <optgroup label="Security & Protection">
+              <option value="ep-agent">Executive Protection Agent</option>
+              <option value="security-professional">Security Professional</option>
+              <option value="private-investigator">Private Investigator</option>
+            </optgroup>
+            <optgroup label="Military & Government">
+              <option value="active-military">Active Military</option>
+              <option value="veteran">Veteran</option>
+              <option value="law-enforcement">Law Enforcement</option>
+              <option value="federal-agent">Federal Agent / Government</option>
+              <option value="intelligence">Intelligence Professional</option>
+            </optgroup>
+            <optgroup label="Other">
+              <option value="corporate-team">Corporate / Team Training (Manager)</option>
+              <option value="other">Other</option>
+            </optgroup>
+          </select>
+          <div class="field-error" id="role-error">Please select your background.</div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-label">Experience Level <span class="req">*</span></div>
+          <div class="radio-group" role="radiogroup" aria-required="true">
+            <label class="radio-item">
+              <input type="radio" name="experience" value="beginner" required/>
+              <span class="radio-label">Beginner — No prior tactical or security training</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="experience" value="intermediate"/>
+              <span class="radio-label">Intermediate — Some training, looking to deepen framework</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="experience" value="advanced"/>
+              <span class="radio-label">Advanced — Experienced operator, formalizing existing skills</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="experience" value="team"/>
+              <span class="radio-label">Team / Organization — Inquiring on behalf of a group</span>
+            </label>
+          </div>
+          <div class="field-error" id="experience-error">Please select your experience level.</div>
+        </div>
+
+        <hr class="form-divider"/>
+
+        <!-- SECTION 3: Intent -->
+        <div class="form-section-title">Areas of Interest</div>
+
+        <div class="field-group">
+          <div class="field-label">What are you most interested in? <span class="req">*</span></div>
+          <div class="check-group" role="group">
+            <label class="check-item">
+              <input type="checkbox" name="interest" value="stoic-mindset"/>
+              <span class="check-label"><strong>Stoic Mindset & Philosophy</strong> — Emotional regulation, decision-making under pressure</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="interest" value="situational-awareness"/>
+              <span class="check-label"><strong>Situational Awareness</strong> — Observation skills, OODA Loop, behavioral analysis</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="interest" value="opsec"/>
+              <span class="check-label"><strong>OPSEC & Counter-Surveillance</strong> — Personal security, digital footprint, Gray Man</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="interest" value="tradecraft"/>
+              <span class="check-label"><strong>Intelligence Tradecraft</strong> — Elicitation, HUMINT, fieldcraft</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="interest" value="negotiation"/>
+              <span class="check-label"><strong>Human Behavior & Negotiation</strong> — Influence, rapport, high-stakes communication</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="interest" value="leadership"/>
+              <span class="check-label"><strong>Leadership Under Pressure</strong> — Command presence, crisis decision-making</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="interest" value="full-course"/>
+              <span class="check-label"><strong>Full Course / Complete Program</strong> — All 11 modules, membership</span>
+            </label>
+          </div>
+          <div class="field-error" id="interest-error">Please select at least one area of interest.</div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="inquiry">Type of Inquiry <span class="req">*</span></label>
+          <select class="field-select" id="inquiry" name="inquiry" required>
+            <option value="" disabled selected>What best describes your inquiry?</option>
+            <option value="individual-membership">Individual Membership — Field Operator or Stoic Spy tier</option>
+            <option value="course-question">Course Content Question — What's covered, how it works</option>
+            <option value="team-training">Team / Group Training — Corporate or organizational</option>
+            <option value="ep-consulting">EP / Security Consulting — Professional advisory</option>
+            <option value="partnership">Partnership / Collaboration Inquiry</option>
+            <option value="media">Media / Press Inquiry</option>
+            <option value="other">General Question</option>
+          </select>
+          <div class="field-error" id="inquiry-error">Please select your inquiry type.</div>
+        </div>
+
+        <hr class="form-divider"/>
+
+        <!-- SECTION 4: Message -->
+        <div class="form-section-title">Your Message</div>
+
+        <div class="field-group">
+          <label class="field-label" for="message">Tell us about your situation <span class="req">*</span></label>
+          <textarea class="field-textarea" id="message" name="message" placeholder="Describe what you're looking to accomplish, any specific challenges you're facing, or questions you have about the program..." maxlength="1000" required></textarea>
+          <div class="field-meta">
+            <div class="field-error" id="message-error">Please include a message (minimum 20 characters).</div>
+            <div class="char-count"><span id="charCount">0</span>/1000</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="howHeard">How did you find Stoic Spy?</label>
+          <select class="field-select" id="howHeard" name="howHeard">
+            <option value="" disabled selected>Select one</option>
+            <option value="instagram">Instagram (@stoic_spy)</option>
+            <option value="youtube">YouTube (@stoicspy)</option>
+            <option value="facebook">Facebook</option>
+            <option value="referral">Referred by someone</option>
+            <option value="search">Search engine</option>
+            <option value="newsletter">Newsletter / Substack</option>
+            <option value="podcast">Podcast or interview</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="check-item">
+            <input type="checkbox" id="newsletter" name="newsletter" value="yes"/>
+            <span class="check-label">Subscribe me to The Stoic Spy Briefing — free weekly intel, field exercises, and training content.</span>
+          </label>
+        </div>
+
+        <div class="field-group">
+          <label class="check-item">
+            <input type="checkbox" id="consent" name="consent" value="yes" required/>
+            <span class="check-label">I understand this form collects my information to facilitate a consultation response. <span class="req">*</span></span>
+          </label>
+          <div class="field-error" id="consent-error">Please acknowledge the consent statement.</div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <div class="btn-spinner" aria-hidden="true"></div>
+          <span class="btn-text">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline;vertical-align:middle;margin-right:0.4rem"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Consultation Request
+          </span>
+        </button>
+
+        <div class="form-footer-note">Response time: within 48 hours &nbsp;·&nbsp; All fields marked <span style="color:var(--copper)">*</span> are required</div>
+
+      </form>
+
+      <!-- Form footer bar -->
+      <div class="form-footer-bar">
+        <div class="form-footer-code">// FORM ID: SSN-CONSULT-2025</div>
+        <div class="form-enc">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          256-bit encrypted
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+
+    <!-- What to expect -->
+    <div class="sidebar-card reveal reveal-delay-1">
+      <div class="sidebar-card-header">// What happens next</div>
+      <div class="sidebar-card-body">
+        <div class="expect-list">
+          <div class="expect-item">
+            <div class="expect-num">01</div>
+            <div class="expect-text">
+              <div class="expect-title">Form received</div>
+              <div class="expect-sub">Your request is logged and assigned a reference code immediately.</div>
+            </div>
+          </div>
+          <div class="expect-item">
+            <div class="expect-num">02</div>
+            <div class="expect-text">
+              <div class="expect-title">Review within 48hrs</div>
+              <div class="expect-sub">We review your background and inquiry to provide a relevant, specific response.</div>
+            </div>
+          </div>
+          <div class="expect-item">
+            <div class="expect-num">03</div>
+            <div class="expect-text">
+              <div class="expect-title">Personal response</div>
+              <div class="expect-sub">You receive a direct reply — not an auto-response — with next steps tailored to your situation.</div>
+            </div>
+          </div>
+          <div class="expect-item">
+            <div class="expect-num">04</div>
+            <div class="expect-text">
+              <div class="expect-title">Optional call</div>
+              <div class="expect-sub">If appropriate, a brief consultation call can be scheduled to discuss your needs in detail.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Who this is for -->
+    <div class="sidebar-card reveal reveal-delay-1">
+      <div class="sidebar-card-header">// Who should use this form</div>
+      <div class="sidebar-card-body">
+        <div class="for-list">
+          <div class="for-item">Prospective students unsure which membership tier fits their background</div>
+          <div class="for-item">Security and EP professionals exploring team or group training</div>
+          <div class="for-item">Organizations wanting to train staff in situational awareness or OPSEC</div>
+          <div class="for-item">Civilians who want to understand the program before committing</div>
+          <div class="for-item">Media, podcast hosts, or journalists seeking an interview</div>
+          <div class="for-item">Partners or collaborators with a relevant proposal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Response time -->
+    <div class="sidebar-card reveal reveal-delay-2">
+      <div class="sidebar-card-body">
+        <div class="response-box">
+          <div class="response-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="response-text">
+            <div class="response-title">Response Time</div>
+            <div class="response-sub">All consultation requests receive a personal reply within <strong style="color:var(--cream)">48 hours</strong>, Monday through Friday. Weekend submissions are handled the following Monday.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direct contact -->
+    <div class="sidebar-card reveal reveal-delay-2">
+      <div class="sidebar-card-header">// Direct Contact</div>
+      <div class="sidebar-card-body" style="display:flex;flex-direction:column;gap:0.85rem">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:0.35rem">Email</div>
+          <a href="mailto:contact@stoicspy.com" style="font-size:0.88rem;color:var(--cream-dim);transition:color 0.2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--cream-dim)'">contact@stoicspy.com</a>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:0.35rem">Instagram</div>
+          <a href="https://www.instagram.com/stoic_spy/" target="_blank" rel="noopener noreferrer" style="font-size:0.88rem;color:var(--cream-dim);transition:color 0.2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--cream-dim)'">@stoic_spy</a>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:0.35rem">YouTube</div>
+          <a href="https://youtube.com/@stoicspy-h9j6g" target="_blank" rel="noopener noreferrer" style="font-size:0.88rem;color:var(--cream-dim);transition:color 0.2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--cream-dim)'">@stoicspy</a>
+        </div>
+      </div>
+      <div class="privacy-note">Your information is never shared with third parties. This form is for consultation purposes only.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ FOOTER ══════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-legal">© 2025 Stoic Spy. All rights reserved.</div>
+    <div class="footer-mission">"Stay sharp. Stay vigilant. Own the mission."</div>
+  </div>
+</footer>
+
+<!-- ══ JS ══════════════════════════════════════════ -->
+<script>
+// ── Scroll reveal ─────────────────────────────────
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)} });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+revealEls.forEach(el => observer.observe(el));
+
+// ── Character counter ──────────────────────────────
+const msgField = document.getElementById('message');
+const charCount = document.getElementById('charCount');
+msgField.addEventListener('input', () => {
+  charCount.textContent = msgField.value.length;
+});
+
+// ── Validation helpers ─────────────────────────────
+function showError(id, show) {
+  const el = document.getElementById(id + '-error');
+  if (el) el.classList.toggle('show', show);
+  const field = document.getElementById(id);
+  if (field) field.classList.toggle('error', show);
+}
+
+function clearErrors() {
+  document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+  document.querySelectorAll('.field-input,.field-select,.field-textarea').forEach(f => f.classList.remove('error'));
+}
+
+function validateForm() {
+  let valid = true;
+
+  // First name
+  const fn = document.getElementById('firstName').value.trim();
+  showError('firstName', !fn);
+  if (!fn) valid = false;
+
+  // Last name
+  const ln = document.getElementById('lastName').value.trim();
+  showError('lastName', !ln);
+  if (!ln) valid = false;
+
+  // Email
+  const em = document.getElementById('email').value.trim();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+  showError('email', !emailOk);
+  if (!emailOk) valid = false;
+
+  // Country
+  const co = document.getElementById('country').value;
+  showError('country', !co);
+  if (!co) valid = false;
+
+  // Role
+  const ro = document.getElementById('role').value;
+  showError('role', !ro);
+  if (!ro) valid = false;
+
+  // Experience
+  const exp = document.querySelector('input[name="experience"]:checked');
+  const expErr = document.getElementById('experience-error');
+  if (!exp) { expErr.classList.add('show'); valid = false; }
+  else expErr.classList.remove('show');
+
+  // Interests (at least one)
+  const interests = document.querySelectorAll('input[name="interest"]:checked');
+  const intErr = document.getElementById('interest-error');
+  if (interests.length === 0) { intErr.classList.add('show'); valid = false; }
+  else intErr.classList.remove('show');
+
+  // Inquiry type
+  const inq = document.getElementById('inquiry').value;
+  showError('inquiry', !inq);
+  if (!inq) valid = false;
+
+  // Message
+  const msg = document.getElementById('message').value.trim();
+  const msgOk = msg.length >= 20;
+  showError('message', !msgOk);
+  if (!msgOk) valid = false;
+
+  // Consent
+  const con = document.getElementById('consent').checked;
+  const conErr = document.getElementById('consent-error');
+  if (!con) { conErr.classList.add('show'); valid = false; }
+  else conErr.classList.remove('show');
+
+  return valid;
+}
+
+// ── Form submission ────────────────────────────────
+document.getElementById('consultForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  clearErrors();
+
+  if (!validateForm()) {
+    // Scroll to first error
+    const firstError = document.querySelector('.field-error.show');
+    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // Simulate submission
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  setTimeout(() => {
+    // Generate reference code
+    const ref = 'SSN' + Date.now().toString(36).toUpperCase().slice(-6);
+    document.getElementById('refCode').textContent = ref;
+
+    // Show success
+    document.querySelector('.form-fields').classList.add('hide');
+    document.getElementById('successState').classList.add('show');
+    document.querySelector('.form-footer-bar').style.display = 'none';
+
+    // Scroll to success
+    document.getElementById('successState').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 1600);
+});
+
+// ── Live field validation on blur ──────────────────
+document.getElementById('firstName').addEventListener('blur', function() {
+  showError('firstName', !this.value.trim());
+});
+document.getElementById('lastName').addEventListener('blur', function() {
+  showError('lastName', !this.value.trim());
+});
+document.getElementById('email').addEventListener('blur', function() {
+  showError('email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value.trim()));
+});
+document.getElementById('message').addEventListener('blur', function() {
+  showError('message', this.value.trim().length < 20);
+});
+
+// ── Reduced motion ─────────────────────────────────
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.querySelectorAll('.status-dot, .form-status-dot').forEach(d => d.style.animation = 'none');
+}
+</script>
+
+</body>
+</html>
